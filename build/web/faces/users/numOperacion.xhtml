@@ -1,0 +1,413 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:c="http://java.sun.com/jsp/jstl/core">        
+    <h:body>
+        <ui:composition template="/resources/template.xhtml">
+            
+            <ui:define name="top">
+                <h:form id="top_id">
+                <h1>..:: Estadísticas MTE ::..</h1>
+                <div align="right" style="color: #fff; font-size: 11px; padding-right: 10px">
+                    Bienvenido (a): #{loginBean.nombre}<br/>
+                    <h:commandLink action="#{loginBean.logout()}" value="Cerrar sesi&oacute;n" style="color: #fff; font-size: 9px;"/>
+                </div>
+                </h:form>
+            </ui:define>
+            
+            <ui:define name="content">
+                <h:form id="form1">
+                    <p:menubar style="font-size: 10px;">
+                        <p:menuitem value="Validaci&oacute;n |" url="/faces/users/menu.jsf" />
+                        <p:menuitem value="N&uacute;mero de Operciones |" url="/faces/users/numOperacion.jsf" />
+                        <p:menuitem value="Detalle de Operaciones |" url="/faces/users/detOperacion.jsf" />
+                        <p:submenu label="Adopci&oacute;n">
+                            <p:menuitem value="General" url="/faces/users/adopcion.jsf" />
+                            <p:menuitem value="Detalle" url="/faces/users/detalle_adopcion.jsf" />     
+                        </p:submenu>
+                        <p:menuitem value="| Detalle de Razones Sociales |" url="/faces/users/detalleRS.jsf" />
+                        <p:menuitem value="Detalle Operaciones y Adopci&oacute;n |" url="/faces/users/resumenDetOperacionAdopcion.jsf" />
+                        <p:menuitem value="Anal&iacute;ticos " url="/faces/users/analiticos.jsf" />
+                    </p:menubar>
+                    <br/>
+                    <br/>                    
+                    <p:fieldset legend="Filtros" style="margin-bottom:20px">
+                        <p:messages id="msg" showDetail="true" closable="true" />
+                        <h:panelGrid columns="7" cellpadding="15" cellspacing="3">
+                            <h:outputText value="Año:"/>
+                            <p:selectOneMenu id="anio" value="#{py_numOperacionesBean.idSeleccionadoAnio}" style="width:125px">
+                                <f:selectItem itemLabel="--Seleccione--" itemValue="0" />
+                                <f:selectItems value="#{py_numOperacionesBean.lista_anio}" />
+                            </p:selectOneMenu>    
+                            <h:outputText value="Mes:"/>
+                            <p:selectOneMenu id="mes" value="#{py_numOperacionesBean.idSeleccionadoMes}" style="width:125px">
+                                <f:selectItem itemLabel="--Seleccione--" itemValue="0" />
+                                <f:selectItems value="#{py_numOperacionesBean.lista_mes}" />
+                            </p:selectOneMenu>                            
+                            <h:outputText value="Per&iacute;odo:"/>
+                            <p:selectOneMenu id="quincena" value="#{py_numOperacionesBean.idSeleccionadoQuincena}" style="width:135px">
+                                <f:selectItem itemLabel="Quincenal" itemValue="1" />
+                                <f:selectItem itemLabel="Mensual" itemValue="2" />
+                            </p:selectOneMenu>
+                            <p:commandButton value="Continuar" update="msg, tableNumOperaciones" actionListener="#{py_numOperacionesBean.operacionFiltro()}" icon="ui-icon-search" title="Continuar" /> 
+                        </h:panelGrid> 
+                    </p:fieldset>
+                        
+                    <p:dataTable id="tableNumOperaciones"
+                   var="numOpe" value="#{py_numOperacionesBean.lista_numOperaciones}"
+                   scrollable="false" 
+                   emptyMessage="No hay registros a mostrar" 
+                   paginator="true" rows="50"  
+                   paginatorPosition="bottom" 
+                   rowsPerPageTemplate="50,100"
+                   selectionMode="single" rowKey="#{rowIndex}"
+                   rowIndexVar="rowIndex"
+                   paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                   currentPageReportTemplate="{currentPage} de {totalPages} ({totalRecords} registros)" >    
+                        <f:facet name="header">
+                            <div align="center" style="font-size: 14px"> Número de Operaciones </div> 
+                            <div align="right">
+                            <h:commandLink style="text-align: right" >
+                                <p:graphicImage name="/imagen/excel.png" width="24"/>
+                                <p:dataExporter type="xls" target="tableNumOperaciones" postProcessor="#{py_numOperacionesBean.exporter_postProcessXLS}"
+                                                fileName="numOperaciones_#{py_numOperacionesBean.idSeleccionadoMes}_#{py_numOperacionesBean.idSeleccionadoAnio}" />
+                            </h:commandLink>
+                            </div>
+                        </f:facet>
+                        
+                        <p:column exportable="false">
+                            <f:facet name="header"><h:outputText value="Registro" /></f:facet>
+                            <h:outputText value="#{rowIndex+1}" />    
+                        </p:column> 
+                        <p:column>
+                            <f:facet name="header"><h:outputText value="Funcionalidad" /></f:facet>
+                            <h:outputText value="#{numOpe.funcionalidad}" />  
+                        </p:column> 
+                        <p:column>  
+                            <f:facet name="header"><h:outputText value="M&eacute;todo" /></f:facet>
+                            <h:outputText value="#{numOpe.metodo}" />  
+                        </p:column>
+                        <p:column>  
+                            <f:facet name="header"><h:outputText value="Operaciones R9" /></f:facet>
+                                <h:outputText value="#{numOpe.r9}" style="float:right">
+                                <f:convertNumber type="number" locale="en_US" />
+                                </h:outputText> 
+                        </p:column>                         
+                        <p:column>  
+                            <f:facet name="header"><h:outputText value="Operaciones Deur" /></f:facet>
+                                <h:outputText value="#{numOpe.deur}" style="float:right">
+                                    <f:convertNumber type="number" locale="en_US" />
+                                </h:outputText> 
+                        </p:column> 
+                        <p:column style="font-weight: bold;">  
+                            <f:facet name="header"><h:outputText value="Total operaciones" /></f:facet>
+                                <h:outputText value="#{numOpe.r9 + numOpe.deur}" style="float:right">
+                                    <f:convertNumber type="number" locale="en_US" />
+                                </h:outputText> 
+                        </p:column> 
+                        <p:column>  
+                            <f:facet name="header"><h:outputText value="Alias R9" /></f:facet>
+                                <h:outputText value="#{numOpe.alias_r9}" style="float:right">
+                                    <f:convertNumber type="number" locale="en_US" />
+                                </h:outputText> 
+                        </p:column> 
+                        <p:column>  
+                            <f:facet name="header"><h:outputText value="Alias DEUR" /></f:facet>
+                                <h:outputText value="#{numOpe.alias_deur}" style="float:right">
+                                    <f:convertNumber type="number" locale="en_US" />
+                                </h:outputText>
+                        </p:column>
+                        <p:column style="font-weight: bold">  
+                            <f:facet name="header"><h:outputText value="Total alias" /></f:facet>
+                                <h:outputText value="#{numOpe.alias_r9 + numOpe.alias_deur}" style="float:right">
+                                    <f:convertNumber type="number" locale="en_US" />
+                                </h:outputText> 
+                        </p:column> 
+                        
+                        <p:columnGroup type="footer">
+                            <p:row>
+                                <p:column colspan="2" style="text-align:right"/>
+                                <p:column style="text-align:right; font-weight: bold" footerText="Total:"/>
+                                <p:column style="text-align:right; font-weight: bold" footerText="#{py_numOperacionesBean.getDecimalFormat(py_numOperacionesBean.total_r9)}" />
+                                <p:column style="text-align:right; font-weight: bold" footerText="#{py_numOperacionesBean.getDecimalFormat(py_numOperacionesBean.total_deur)}" />
+                                <p:column style="text-align:right; font-weight: bold" footerText="#{py_numOperacionesBean.getDecimalFormat(py_numOperacionesBean.total_gral)}" />
+                                <p:column style="text-align:right; font-weight: bold" footerText="#{py_numOperacionesBean.getDecimalFormat(py_numOperacionesBean.total_usr_r9)}" />
+                                <p:column style="text-align:right; font-weight: bold" footerText="#{py_numOperacionesBean.getDecimalFormat(py_numOperacionesBean.total_usr_deur)}" />
+                                <p:column style="text-align:right; font-weight: bold" footerText="#{py_numOperacionesBean.getDecimalFormat(py_numOperacionesBean.total_usuarios)}" />
+                            </p:row>
+                        </p:columnGroup>
+                        
+                    </p:dataTable>          
+                    
+                    <br/><br/>
+                    <div align="right">
+                        <p:commandButton value="Ver hist&oacute;rico" icon="ui-icon-note" oncomplete="dialog_historico.show()"/>
+                        <p:commandButton value="Resumen general" icon="ui-icon-document" oncomplete="dialog.show()"
+                                         actionListener="#{py_numOperacionesBean.operacionFiltroResumen()}"/>
+                        <p:commandButton value="Usuarios &Uacute;nicos" icon="ui-icon-person" oncomplete="dialog_unicos.show()"
+                                         actionListener="#{py_numOperacionesBean.operacionFiltroUnicos()}" />
+                    </div>
+                    <br/><br/>                                      
+                    
+                </h:form>
+                
+                <!-- Resumen general -->
+                
+                <h:form id="form_dialog">
+                    <p:dialog header="N&uacute;mero de Operaciones" widgetVar="dialog" showEffect="fade" modal="true">
+                         
+                    <p:outputPanel autoUpdate="true">    
+                        <p:dataTable id="table2"
+                   var="numOpe" value="#{py_numOperacionesBean.lista_numOperacionesResumen}"
+                   scrollable="false" 
+                   emptyMessage="No hay registros a mostrar" 
+                   paginator="true" rows="50"  
+                   paginatorPosition="bottom" 
+                   selectionMode="single" rowKey="#{rowIndex}"
+                   rowIndexVar="rowIndex" 
+                   paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                   currentPageReportTemplate="{currentPage} de {totalPages} ({totalRecords} registros)" >
+                   >  
+                        <f:facet name="header">
+                            <div align="right">
+                            <h:commandLink style="text-align: right" >
+                                <p:graphicImage name="/imagen/excel.png" width="24"/>
+                                <p:dataExporter type="xls" target="table2" postProcessor="#{py_numOperacionesBean.exporter_postProcessXLS}"
+                                                fileName="numOperaciones_#{py_numOperacionesBean.idSeleccionadoMes}_#{py_numOperacionesBean.idSeleccionadoAnio}" />
+                            </h:commandLink>
+                            </div>
+                        </f:facet>
+                            
+                        <p:column exportable="false">
+                            <f:facet name="header"><h:outputText value="Registro" /></f:facet>
+                            <h:outputText value="#{rowIndex+1}" />    
+                        </p:column> 
+                        <p:column>
+                            <f:facet name="header"><h:outputText value="Funcionalidad" /></f:facet>
+                            <h:outputText value="#{numOpe[0]}" />  
+                        </p:column> 
+                        <p:column>  
+                            <f:facet name="header"><h:outputText value="Operaciones R9" /></f:facet>
+                                <h:outputText value="#{numOpe[1]}" style="float:right">
+                                <f:convertNumber type="number" locale="en_US" />
+                                </h:outputText> 
+                        </p:column>                         
+                        <p:column>  
+                            <f:facet name="header"><h:outputText value="Operaciones Deur" /></f:facet>
+                                <h:outputText value="#{numOpe[2]}" style="float:right">
+                                    <f:convertNumber type="number" locale="en_US" />
+                                </h:outputText> 
+                        </p:column> 
+                        <p:column style="font-weight: bold;">  
+                            <f:facet name="header"><h:outputText value="Total operaciones" /></f:facet>
+                                <h:outputText value="#{numOpe[1] + numOpe[2]}" style="float:right">
+                                    <f:convertNumber type="number" locale="en_US" />
+                                </h:outputText> 
+                        </p:column> 
+                        <p:column>  
+                            <f:facet name="header"><h:outputText value="Alias R9" /></f:facet>
+                                <h:outputText value="#{numOpe[3]}" style="float:right">
+                                    <f:convertNumber type="number" locale="en_US" />
+                                </h:outputText> 
+                        </p:column> 
+                        <p:column>  
+                            <f:facet name="header"><h:outputText value="Alias DEUR" /></f:facet>
+                                <h:outputText value="#{numOpe[4]}" style="float:right">
+                                    <f:convertNumber type="number" locale="en_US" />
+                                </h:outputText>
+                        </p:column>     
+                        <p:column style="font-weight: bold;">  
+                            <f:facet name="header"><h:outputText value="Total alias" /></f:facet>
+                                <h:outputText value="#{numOpe[3] + numOpe[4]}" style="float:right">
+                                    <f:convertNumber type="number" locale="en_US" />
+                                </h:outputText> 
+                        </p:column>     
+                    </p:dataTable> 
+                    </p:outputPanel>
+                        
+                    </p:dialog>
+                </h:form>
+                
+                <!-- Histórico número de operaciones -->
+                
+                <h:form id="form_historico">
+                    <p:dialog header="Hist&oacute;rico - N&uacute;mero de Operaciones" widgetVar="dialog_historico" showEffect="fade" modal="true">
+                        <p:dataTable id="tableHistoricoOperaciones"
+                        var="lista" value="#{py_numOperacionesBean.lista_historicoOperaciones}"
+                        scrollable="false" 
+                        emptyMessage="No hay registros a mostrar" 
+                        paginator="false" rows="50"
+                        selectionMode="single" rowKey="# {rowIndex}"
+                        rowIndexVar="rowIndex"
+                        >    
+                        
+                        <f:facet name="header">
+                            <div align="right">
+                            <h:commandLink style="text-align: right" >
+                                <p:graphicImage name="/imagen/excel.png" width="14"/>
+                                <p:dataExporter type="xls" target="tableHistoricoOperaciones" postProcessor="# {py_numOperacionesBean.exporter_postProcessXLS}"
+                                                fileName="historicoNumOperaciones" />
+                            </h:commandLink>
+                            </div>
+                        </f:facet>
+                            
+                        <p:columnGroup type="header">
+                            <p:row>
+                                <p:column rowspan="3" headerText="Funcionalidad"/>
+                                <p:column colspan="8" headerText="Mes"/>
+                            </p:row>
+                            <p:row>
+                                <c:forEach items="#{py_numOperacionesBean.lista_mesesOrder}" var="mes">
+                                    <p:column colspan="2" headerText="# {mes}"/>
+                                </c:forEach>
+                            </p:row>
+                            <p:row>
+                                <c:forEach items="#{py_numOperacionesBean.lista_mesesOrder}" var="mes">
+                                    <p:column headerText="Quincena"/>
+                                    <p:column headerText="Mes"/>
+                                </c:forEach>
+                            </p:row>
+                        </p:columnGroup>
+                        
+                        <p:column>
+                            <h:outputText value="#{lista[0]}" />  
+                        </p:column>
+                        <p:column>
+                            <h:outputText value="#{py_numOperacionesBean.getDecimalFormat(lista[1])}" style="float:right"/>
+                        </p:column> 
+                        <p:column>
+                            <h:outputText value="#{py_numOperacionesBean.getDecimalFormat(lista[2])}" style="float:right"/>
+                        </p:column> 
+                        <p:column>
+                            <h:outputText value="#{py_numOperacionesBean.getDecimalFormat(lista[3])}" style="float:right"/>
+                        </p:column> 
+                        <p:column>
+                            <h:outputText value="#{py_numOperacionesBean.getDecimalFormat(lista[4])}" style="float:right"/>
+                        </p:column> 
+                        <p:column>
+                            <h:outputText value="#{py_numOperacionesBean.getDecimalFormat(lista[5])}" style="float:right"/>
+                        </p:column> 
+                        <p:column>
+                            <h:outputText value="#{py_numOperacionesBean.getDecimalFormat(lista[6])}" style="float:right">
+                            </h:outputText>   
+                        </p:column> 
+                        <p:column>
+                            <h:outputText value="#{py_numOperacionesBean.getDecimalFormat(lista[7])}" style="float:right"/>
+                        </p:column> 
+                        <p:column>
+                            <h:outputText value="#{py_numOperacionesBean.getDecimalFormat(lista[8])}" style="float:right">
+                            </h:outputText>   
+                        </p:column> 
+                        
+                    </p:dataTable>
+                        
+                    </p:dialog>
+                </h:form>
+                
+                <!-- Usuarios únicos -->
+                
+                <h:form id="form_unicos">
+                    <p:dialog header="Usuarios &Uacute;nicos" widgetVar="dialog_unicos" showEffect="fade" modal="true" >
+                        
+                        <p:outputPanel autoUpdate="true">    
+                        <p:dataTable id="table3"
+                   var="valOpe" value="#{py_numOperacionesBean.lista_userUnicos}"
+                   scrollable="false" 
+                   emptyMessage="No hay registros a mostrar" 
+                   paginator="true" rows="50"  
+                   paginatorPosition="bottom" 
+                   selectionMode="single" rowKey="#{rowIndex}"
+                   rowIndexVar="rowIndex" 
+                   paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                   currentPageReportTemplate="{currentPage} de {totalPages} ({totalRecords} registros)" >
+                   >  
+                        <f:facet name="header">
+                            <div align="right">
+                            <h:commandLink style="text-align: right" >
+                                <p:graphicImage name="/imagen/excel.png" width="24"/>
+                                <p:dataExporter type="xls" target="table3" postProcessor="#{py_numOperacionesBean.exporter_postProcessXLS_v2}"
+                                                fileName="usuarioUnicos_#{py_numOperacionesBean.idSeleccionadoMes}_#{py_numOperacionesBean.idSeleccionadoAnio}" />
+                            </h:commandLink>
+                            </div>
+                        </f:facet>
+                            
+                        <p:column exportable="false">
+                            <f:facet name="header"><h:outputText value="Registro" /></f:facet>
+                            <h:outputText value="#{rowIndex+1}" />    
+                        </p:column> 
+                        <p:column>
+                            <f:facet name="header"><h:outputText value="Funcionalidad" /></f:facet>
+                            <h:outputText value="#{valOpe.modulo}" />  
+                        </p:column> 
+                        <p:column>  
+                            <f:facet name="header"><h:outputText value="Alias R9" /></f:facet>
+                                <h:outputText value="#{valOpe.alias_R09}" style="float:right">
+                                <f:convertNumber type="number" locale="en_US" />
+                                </h:outputText> 
+                        </p:column>                         
+                        <p:column>  
+                            <f:facet name="header"><h:outputText value="Alias Deur" /></f:facet>
+                                <h:outputText value="#{valOpe.alias_DEUR}" style="float:right">
+                                    <f:convertNumber type="number" locale="en_US" />
+                                </h:outputText> 
+                        </p:column> 
+                        <p:column style="font-weight: bold;">  
+                            <f:facet name="header"><h:outputText value="Total alias" /></f:facet>
+                                <h:outputText value="#{valOpe.alias_R09 + valOpe.alias_DEUR}" style="float:right">
+                                    <f:convertNumber type="number" locale="en_US" />
+                                </h:outputText> 
+                        </p:column> 
+                    </p:dataTable> 
+                    <!--</p:outputPanel>-->
+                    
+                    <br/><br/>
+                        
+                    <!-- <p:outputPanel autoUpdate="true">  -->  
+                        <p:dataTable id="table4"
+                   var="valUser" value="#{py_numOperacionesBean.lista_userUnicosTotales}"
+                   scrollable="false" 
+                   emptyMessage="No hay registros a mostrar" 
+                   paginator="true" rows="50"  
+                   paginatorPosition="bottom" 
+                   selectionMode="single" rowKey="#{rowIndex}"
+                   rowIndexVar="rowIndex" 
+                   paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                   currentPageReportTemplate="{currentPage} de {totalPages} ({totalRecords} registros)" >
+                   >  
+                            
+                        <p:column exportable="false">
+                            <f:facet name="header"><h:outputText value="Alias Totales R9" /></f:facet>
+                            <h:outputText value="#{valUser[0]}" style="float:right">
+                                <f:convertNumber type="number" locale="en_US" />
+                            </h:outputText>   
+                        </p:column> 
+                        <p:column>
+                            <f:facet name="header"><h:outputText value="Alias Totales DEUR" /></f:facet>
+                            <h:outputText value="#{valUser[1]}" style="float:right">
+                                <f:convertNumber type="number" locale="en_US" />
+                            </h:outputText>  
+                        </p:column> 
+                   
+                        <p:column style="font-weight: bold;">  
+                            <f:facet name="header"><h:outputText value="Total alias" /></f:facet>
+                                <h:outputText value="#{valUser[0] + valUser[1]}" style="float:right">
+                                    <f:convertNumber type="number" locale="en_US" />
+                                </h:outputText> 
+                        </p:column> 
+                    </p:dataTable> 
+                    </p:outputPanel>    
+                        
+                    </p:dialog>
+                </h:form>
+                
+            </ui:define>
+        </ui:composition>    
+    </h:body>
+</html>
+
+
+

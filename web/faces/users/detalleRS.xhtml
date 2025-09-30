@@ -1,0 +1,135 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui">        
+    <h:body>
+        <ui:composition template="/resources/template.xhtml">
+            
+            <ui:define name="top">
+                <h:form id="top_id">
+                <h1>..:: Estadísticas MTE ::..</h1>
+                <div align="right" style="color: #fff; font-size: 11px; padding-right: 10px">
+                    Bienvenido (a): #{loginBean.nombre}<br/>
+                    <h:commandLink action="#{loginBean.logout()}" value="Cerrar sesi&oacute;n" style="color: #fff; font-size: 9px;"/>
+                </div>
+                </h:form>
+            </ui:define>
+            
+            <ui:define name="content">
+                <h:form id="content_id">
+                    <p:menubar style="font-size: 10px;">
+                        <p:menuitem value="Validaci&oacute;n |" url="/faces/users/menu.jsf" />
+                        <p:menuitem value="N&uacute;mero de Operciones |" url="/faces/users/numOperacion.jsf" />
+                        <p:menuitem value="Detalle de Operaciones |" url="/faces/users/detOperacion.jsf" />
+                        <p:submenu label="Adopci&oacute;n">
+                            <p:menuitem value="General" url="/faces/users/adopcion.jsf" />
+                            <p:menuitem value="Detalle" url="/faces/users/detalle_adopcion.jsf" />     
+                        </p:submenu>
+                        <p:menuitem value="| Detalle de Razones Sociales |" url="/faces/users/detalleRS.jsf" />
+                        <p:menuitem value="Detalle Operaciones y Adopci&oacute;n |" url="/faces/users/resumenDetOperacionAdopcion.jsf" />
+                        <p:menuitem value="Anal&iacute;ticos " url="/faces/users/analiticos.jsf" />
+                    </p:menubar>
+                    <br/>
+                    <br/>
+                    
+                    <p:fieldset legend="Filtros" style="margin-bottom:20px">
+                        <p:messages id="msg" showDetail="true" closable="true"/>
+                        <div align="center">
+                            <h:panelGrid columns="9" cellpadding="15" cellspacing="3">
+                                <h:outputText value="Año:"/>
+                                <p:selectOneMenu id="anio" value="#{py_detalleRSBean.idSeleccionadoAnio}" style="width:125px">
+                                    <f:selectItem itemLabel="--Seleccione--" itemValue="0" />
+                                    <f:selectItems value="#{py_detalleRSBean.lista_anio}" />
+                                </p:selectOneMenu>    
+                                <h:outputText value="Mes:"/>
+                                <p:selectOneMenu id="mes" value="#{py_detalleRSBean.idSeleccionadoMes}" style="width:125px">
+                                    <f:selectItem itemLabel="--Seleccione--" itemValue="0" />
+                                    <f:selectItems value="#{py_detalleRSBean.lista_mes}" />
+                                </p:selectOneMenu>                            
+                                <h:outputText value="Per&iacute;odo:"/>
+                                <p:selectOneMenu id="quincena" value="#{py_detalleRSBean.idSeleccionadoQuincena}" style="width:125px">
+                                    <f:selectItem itemLabel="Quincenal" itemValue="1" />
+                                    <f:selectItem itemLabel="Mensual" itemValue="2" />
+                                </p:selectOneMenu>
+                                <h:outputText value="Regi&oacute;n:"/>
+                                <p:selectOneMenu id="region" value="#{py_detalleRSBean.idSeleccionadoRegion}" style="width:125px">
+                                    <f:selectItem itemLabel="R9" itemValue="r9" />
+                                    <f:selectItem itemLabel="DEUR" itemValue="deur" />
+                                    <f:selectItem itemLabel="Todo" itemValue="todo" />
+                                </p:selectOneMenu>
+                                <p:commandButton value="Continuar" update="msg, tableDetalleRS" actionListener="#{py_detalleRSBean.operacionFiltro()}" icon="ui-icon-search" title="Continuar" /> 
+                            </h:panelGrid>                        
+                        </div>
+                    </p:fieldset>
+                                              
+                    <p:dataTable id="tableDetalleRS" resizableColumns="true"
+                        var="adop" value="#{py_detalleRSBean.lista_detalleRS}"
+                        scrollable="false" 
+                        emptyMessage="No hay registros a mostrar" 
+                        paginator="true" rows="50"  
+                        paginatorPosition="bottom" 
+                        rowsPerPageTemplate="50,100"
+                        selectionMode="single" rowKey="#{rowIndex}"
+                        rowIndexVar="rowIndex"
+                        paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                        currentPageReportTemplate="{currentPage} de {totalPages} ({totalRecords} registros)" >
+                           <f:facet name="header">
+                               <div align="center" style="font-size: 14px"> Detalle de Razones Sociales </div> 
+                               <div align="right">
+                               <h:commandLink style="text-align: right" >
+                                   <p:graphicImage name="/imagen/excel.png"  width="24"/>
+                                   <p:dataExporter type="csv" target="tableDetalleRS" postProcessor="#{py_detalleRSBean.exporter_postProcessXLS}"
+                                                   fileName="detalleRS_#{py_detalleRSBean.idSeleccionadoMes}" />
+                               </h:commandLink>
+                               </div>
+                           </f:facet>
+
+                        <p:column>
+                            <f:facet name="header"><h:outputText value="Registro" /></f:facet>
+                            <h:outputText value="#{rowIndex+1}" />    
+                        </p:column> 
+                        <p:column>
+                            <f:facet name="header"><h:outputText value="Alias" /></f:facet>
+                            <h:outputText value="#{adop.alias}" />  
+                        </p:column>
+                        <p:column>
+                            <f:facet name="header"><h:outputText value="Nombre Fiscal" /></f:facet>
+                            <h:outputText value="#{adop.nombre_fiscal}" />  
+                        </p:column>
+                        <p:column>
+                            <f:facet name="header"><h:outputText value="RFC Empresa" /></f:facet>
+                            <h:outputText value="#{adop.rfc_empresa}" />  
+                        </p:column>
+                        <p:column>
+                            <f:facet name="header"><h:outputText value="Regi&oacute;n Administrador" /></f:facet>
+                            <h:outputText value="#{adop.region_admin_gral}" />  
+                        </p:column>
+                        <p:column>
+                            <f:facet name="header"><h:outputText value="Regi&oacute;n Ejecutivo" /></f:facet>
+                            <h:outputText value="#{adop.region_ejecutivo}" />  
+                        </p:column>
+                        <p:column>
+                            <f:facet name="header"><h:outputText value="Correo Administrador" /></f:facet>
+                            <h:outputText value="#{adop.correo_admin_gral}" />  
+                        </p:column>
+
+                        <p:columnGroup type="footer">
+                            <p:row>
+                                <p:column colspan="5" style="text-align:right"/>
+                                <p:column style="text-align:right" footerText="Total:"/>
+                                <p:column style="text-align:right; font-weight:bold" footerText="#{py_detalleRSBean.getDecimalFormat(py_detalleRSBean.total_registros)}"/>
+                            </p:row>
+                        </p:columnGroup>
+                        
+                    </p:dataTable>                    
+                </h:form>
+            </ui:define>
+        </ui:composition>    
+    </h:body>
+</html>
+
+
+

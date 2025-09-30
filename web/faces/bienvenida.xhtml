@@ -1,0 +1,34 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui">
+    <h:body>
+        <ui:composition template="/resources/template.xhtml">
+        
+            <ui:define name="content">
+                <div style="height: 568px"/>
+                <p:dialog id="basicDialog" header="Inicio de Sesi&oacute;n" widgetVar="dlg1" modal="true" 
+                          visible="true" closable="false" draggable="false" resizable="false"> 
+                    <h:form id="formUser">
+                        <h:panelGrid columns="2" cellpadding="5" cellspacing="5">
+                            <h:outputText value="Usuario:"/>
+                            <p:inputText id="usuario" value="#{loginBean.usuario}"/>
+                            <h:outputText value="Contraseña:"/>
+                            <p:password id="contrasena" value="#{loginBean.contrasena}"/>
+                        </h:panelGrid>   
+                        <p:separator/>
+                        <div align="center">
+                        <h:panelGrid columns="2" cellpadding="2" cellspacing="2" >                            
+                            <p:commandButton widgetVar="iniciar" value="Iniciar" action="#{loginBean.validateUser()}" icon="ui-icon ui-icon-person" update="msg"/>
+                        </h:panelGrid>                        
+                        </div>
+                        <p:messages id="msg" showDetail="true" autoUpdate="true" closable="true"/>
+                    </h:form>
+                </p:dialog>
+            </ui:define>
+        </ui:composition>    
+    </h:body>
+</html>
+

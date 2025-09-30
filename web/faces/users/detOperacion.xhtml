@@ -1,0 +1,162 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui">        
+    <h:body>
+        <ui:composition template="/resources/template.xhtml">
+            
+            <ui:define name="top">
+                <h:form id="top_id">
+                <h1>..:: Estadísticas MTE ::..</h1>
+                <div align="right" style="color: #fff; font-size: 11px; padding-right: 10px">
+                    Bienvenido (a): #{loginBean.nombre}<br/>
+                    <h:commandLink action="#{loginBean.logout()}" value="Cerrar sesi&oacute;n" style="color: #fff; font-size: 9px;"/>
+                </div>
+                </h:form>
+            </ui:define>
+            
+            <ui:define name="content">
+                <h:form id="content_id">
+                    <p:menubar style="font-size: 10px;">
+                        <p:menuitem value="Validaci&oacute;n |" url="/faces/users/menu.jsf" />
+                        <p:menuitem value="N&uacute;mero de Operciones |" url="/faces/users/numOperacion.jsf" />
+                        <p:menuitem value="Detalle de Operaciones |" url="/faces/users/detOperacion.jsf" />
+                        <p:submenu label="Adopci&oacute;n">
+                            <p:menuitem value="General" url="/faces/users/adopcion.jsf" />
+                            <p:menuitem value="Detalle" url="/faces/users/detalle_adopcion.jsf" />     
+                        </p:submenu>
+                        <p:menuitem value="| Detalle de Razones Sociales |" url="/faces/users/detalleRS.jsf" />
+                        <p:menuitem value="Detalle Operaciones y Adopci&oacute;n |" url="/faces/users/resumenDetOperacionAdopcion.jsf" />
+                        <p:menuitem value="Anal&iacute;ticos " url="/faces/users/analiticos.jsf" />
+                    </p:menubar>
+                    <br/>
+                    <br/>
+                    <p:fieldset legend="Filtros" style="margin-bottom:20px">
+                        <p:messages id="msg" showDetail="true" closable="true"/>
+                        <div align="center">
+                            <h:panelGrid columns="9" cellpadding="15" cellspacing="3">
+                                <h:outputText value="Año:"/>
+                                <p:selectOneMenu id="anio" value="#{py_detOperacionesBean.idSeleccionadoAnio}" style="width:125px">
+                                    <f:selectItem itemLabel="--Seleccione--" itemValue="0" />
+                                    <f:selectItems value="#{py_detOperacionesBean.lista_anio}" />
+                                </p:selectOneMenu>    
+                                <h:outputText value="Mes:"/>
+                                <p:selectOneMenu id="mes" value="#{py_detOperacionesBean.idSeleccionadoMes}" style="width:125px">
+                                    <f:selectItem itemLabel="--Seleccione--" itemValue="0" />
+                                    <f:selectItems value="#{py_detOperacionesBean.lista_mes}" />
+                                </p:selectOneMenu>                                 
+                                <h:outputText value="Per&iacute;odo:"/>
+                                <p:selectOneMenu id="quincena" value="#{py_detOperacionesBean.idSeleccionadoQuincena}" style="width:125px">
+                                    <f:selectItem itemLabel="Quincenal" itemValue="1" />
+                                    <f:selectItem itemLabel="Mensual" itemValue="2" />
+                                </p:selectOneMenu>
+                                <h:outputText value="Regi&oacute;n:"/>
+                                <p:selectOneMenu id="region" value="#{py_detOperacionesBean.idSeleccionadoRegion}" style="width:125px">
+                                    <f:selectItem itemLabel="R9" itemValue="r9" />
+                                    <f:selectItem itemLabel="DEUR" itemValue="deur" />
+                                    <f:selectItem itemLabel="Todo" itemValue="todo" />
+                                </p:selectOneMenu>
+                                <p:commandButton value="Continuar" update="msg, tableDetOperaciones" actionListener="#{py_detOperacionesBean.operacionFiltro()}" icon="ui-icon-search" title="Continuar" /> 
+                            </h:panelGrid>                        
+                        </div>
+                    </p:fieldset>
+                    
+                    <p:dataTable id="tableDetOperaciones"
+                   var="regOpe" value="#{py_detOperacionesBean.lista_detalleOperaciones}"
+                   scrollable="false" resizableColumns="true"
+                   emptyMessage="No hay registros a mostrar" 
+                   paginator="true" rows="50"  
+                   paginatorPosition="bottom" 
+                   rowsPerPageTemplate="50,100"
+                   selectionMode="single" rowKey="#{rowIndex}"
+                   rowIndexVar="rowIndex"
+                   paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                   currentPageReportTemplate="{currentPage} de {totalPages} ({totalRecords} registros)" >
+                        <f:facet name="header">
+                            <div align="center" style="font-size: 14px"> Detalle de Operaciones </div> 
+                            <div align="right">
+                            <h:commandLink style="text-align: right" >
+                                <p:graphicImage name="/imagen/excel.png" width="24"/>
+                                <p:dataExporter type="xls" target="tableDetOperaciones" postProcessor="#{py_detOperacionesBean.exporter_postProcessXLS}"
+                                                fileName="detalleOperaciones_#{py_detOperacionesBean.idSeleccionadoMes}" />
+                            </h:commandLink>
+                            </div>
+                        </f:facet>
+                        
+                        
+                        <p:column>
+                            <f:facet name="header"><h:outputText value="Registro" /></f:facet>
+                            <h:outputText value="#{rowIndex+1}" />    
+                        </p:column> 
+                        <p:column>
+                            <f:facet name="header"><h:outputText value="M&eacute;todo" /></f:facet>
+                            <h:outputText value="#{regOpe.modulo}" />  
+                        </p:column>
+                        <p:column>
+                            <f:facet name="header"><h:outputText value="M&oacute;dulo" /></f:facet>
+                            <h:outputText value="#{regOpe.metodo}" />  
+                        </p:column>
+                        <p:column>
+                            <f:facet name="header"><h:outputText value="R&eacute;gion Admin" /></f:facet>
+                            <h:outputText value="#{regOpe.region_admin}" />  
+                        </p:column>
+                        <p:column>
+                            <f:facet name="header"><h:outputText value="Estatus" /></f:facet>
+                            <h:outputText value="#{regOpe.estatus}" />  
+                        </p:column>
+                        <p:column filterBy="#{regOpe.administrador}">
+                            <f:facet name="header"><h:outputText value="Correo Admin" /></f:facet>
+                            <h:outputText value="#{regOpe.administrador}" />  
+                        </p:column>
+                        <p:column>
+                            <f:facet name="header"><h:outputText value="Tipo usuario" /></f:facet>
+                            <h:outputText value="#{regOpe.tipo_usuario == 1 ? 'Admin':'Sub-admin'}" />  
+                        </p:column>
+                        <p:column>
+                            <f:facet name="header"><h:outputText value="Alias" /></f:facet>
+                            <h:outputText value="#{regOpe.alias}" />  
+                        </p:column>
+                        <p:column filterBy="#{regOpe.ejecutivo}">
+                            <f:facet name="header"><h:outputText value="Correo Ejecutivo" /></f:facet>
+                            <h:outputText value="#{regOpe.ejecutivo}" />  
+                        </p:column>
+                        <p:column>
+                            <f:facet name="header"><h:outputText value="R&eacute;gion Ejecutivo" /></f:facet>
+                            <h:outputText value="#{regOpe.region_ejecutivo}" />  
+                        </p:column>
+                        <p:column>
+                            <f:facet name="header"><h:outputText value="Universal Ejecutivo" /></f:facet>
+                            <h:outputText value="#{regOpe.ejecutivo_universal}" />  
+                        </p:column>
+                        <p:column>
+                            <f:facet name="header"><h:outputText value="Ingreso" /></f:facet>
+                            <h:outputText value="#{regOpe.ingreso}" />  
+                        </p:column>
+                        <p:column>
+                            <f:facet name="header"><h:outputText value="Operaciones" /></f:facet>
+                                <h:outputText value="#{regOpe.operaciones}" style="float:right">
+                                    <f:convertNumber type="number" locale="en_US" />
+                                </h:outputText> 
+                        </p:column>
+                    
+                        <p:columnGroup type="footer">
+                            <p:row>
+                                <p:column colspan="11" style="text-align:right"/>
+                                <p:column style="text-align:right" footerText="Total:"/>
+                                <p:column style="text-align:right; font-weight:bold" footerText="#{py_detOperacionesBean.c_total}"/>
+                            </p:row>
+                        </p:columnGroup>
+                        
+                    </p:dataTable>
+                    
+                </h:form>
+            </ui:define>
+        </ui:composition>    
+    </h:body>
+</html>
+
+
+

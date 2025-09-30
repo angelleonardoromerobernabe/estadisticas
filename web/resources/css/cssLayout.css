@@ -1,0 +1,67 @@
+
+#top {
+    position: relative;
+    //background-color: #036fab;
+    background-image: url("#{resource['imagen:barra.jpg']}");
+    //background-image: url("imagen/barra.jpg");
+    color: white;
+    padding: 7px;
+    height: 95px;
+    //margin: 0px 0px 10px 0px;    
+}
+
+#bottom {
+    position: relative;
+    //background-color: #036fab;
+    background-image: url("#{resource['imagen:barra.jpg']}");
+    padding: 7px;
+    text-align: center;
+    //margin: 10px 0px 0px 0px;
+    color: white;
+}
+
+#left {
+    float: left;
+    background-color: #ece3a5;
+    padding: 5px;
+    width: 150px;
+}
+
+#right {
+    float: right;
+    background-color: #ece3a5;
+    padding: 5px;
+    width: 150px;
+}
+
+.center_content {
+    position: relative;
+    background-color: #dddddd;
+    padding: 0px;
+}
+
+.left_content {
+    background-color: #dddddd;
+    padding: 5px;
+    margin-left: 170px;
+}
+
+.right_content {
+    background-color: #dddddd;
+    padding: 0px;
+    margin: 0px 170px 0px 170px;
+}
+
+#top a:link, #top a:visited {
+  color: white;
+  font-weight : bold;
+  text-decoration: none;
+}
+
+#top a:link:hover, #top a:visited:hover  {
+  color: black;
+  font-weight : bold;
+  text-decoration : underline;
+}
+
+
